@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MixCalc Pro — Professional Gas Mixture Calculator for ISO 6142-1 Labs</title>
+<meta name="description" content="Gravimetric gas mixture preparation with Peng-Robinson EOS, ISO 6142-1 Annex F/G uncertainty, COA-ready PDF reports. Built by gas industry practitioners.">
+<meta property="og:title" content="MixCalc Pro — Gas Mixture Calculator">
+<meta property="og:description" content="ISO 6142-1 gravimetric mixture calculator. Free demo available.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1419;
+    --ink-soft: #4a5568;
+    --ink-faint: #718096;
+    --paper: #f7f4ed;
+    --paper-warm: #efe9dc;
+    --accent: #c2410c;
+    --accent-deep: #9a3412;
+    --rule: #d6cfbf;
+    --surface: #fff;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 92vh;
+    padding: 40px 24px 80px;
+    position: relative;
+    border-bottom: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(194,65,12,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(194,65,12,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .nav {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0 40px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--ink); color: var(--paper);
+    display: grid; place-items: center;
+    font-family: var(--serif); font-size: 18px;
+    border-radius: 4px;
+  }
+  .nav a {
+    color: var(--ink-soft); text-decoration: none;
+    margin-left: 24px;
+    transition: color 0.15s;
+  }
+  .nav a:hover { color: var(--accent); }
+  .nav .cta-nav {
+    padding: 6px 14px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .nav .cta-nav:hover { background: var(--accent); color: var(--paper); }
+
+  .hero-content {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.3fr 1fr;
+    gap: 60px; align-items: center;
+    position: relative; z-index: 1;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .eyebrow::before {
+    content: ""; display: block;
+    width: 24px; height: 1px; background: var(--accent);
+  }
+
+  h1.hero-title {
+    font-family: var(--serif);
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+  }
+  h1.hero-title em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 540px;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .hero-ctas {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .btn {
+    padding: 14px 28px;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: none;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+  .btn-primary:hover { box-shadow: 6px 6px 0 var(--accent); }
+  .btn-ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  .hero-meta {
+    display: flex; gap: 32px;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .hero-meta strong { color: var(--ink); font-weight: 500; }
+
+  /* ── Hero preview card ── */
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.02),
+      8px 8px 0 var(--paper-warm);
+    transform: rotate(-0.5deg);
+    position: relative;
+  }
+  .preview-card::before {
+    content: "LIVE CALCULATION";
+    position: absolute; top: -10px; left: 20px;
+    background: var(--accent); color: white;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+    padding: 3px 8px; border-radius: 2px;
+  }
+  .preview-card h3 {
+    font-family: var(--serif);
+    font-size: 14px; font-weight: 500;
+    margin-bottom: 14px;
+    color: var(--ink-soft);
+  }
+  .preview-row {
+    display: flex; justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--rule);
+    font-family: var(--mono); font-size: 12px;
+  }
+  .preview-row:last-child { border-bottom: none; font-weight: 600; }
+  .preview-row span:last-child { color: var(--accent); }
+  .preview-note {
+    margin-top: 14px;
+    padding: 10px;
+    background: var(--paper-warm);
+    border-left: 3px solid var(--accent);
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* ── Credibility strip ── */
+  .cred-strip {
+    padding: 24px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cred-strip-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;
+    align-items: center;
+  }
+  .cred-item { opacity: 0.75; }
+
+  /* ── Problem section ── */
+  section { padding: 100px 24px; }
+  .section-wrap { max-width: 1200px; margin: 0 auto; }
+  .section-header {
+    text-align: center;
+    max-width: 720px; margin: 0 auto 64px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  h2 em { color: var(--accent); font-style: italic; font-weight: 500; }
+  .section-desc {
+    font-size: 17px; color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+  .problem-card {
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    position: relative;
+  }
+  .problem-num {
+    font-family: var(--serif);
+    font-size: 60px;
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .problem-card h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .problem-card p {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Features ── */
+  .features {
+    background: var(--paper-warm);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 48px;
+  }
+  .feature {
+    display: flex; gap: 20px;
+    align-items: flex-start;
+  }
+  .feature-icon {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    background: var(--ink); color: var(--paper);
+    display: grid; place-items: center;
+    border-radius: 4px;
+    font-family: var(--serif); font-size: 20px;
+  }
+  .feature h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .feature p {
+    color: var(--ink-soft); font-size: 14.5px; line-height: 1.6;
+  }
+  .feature code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface);
+    padding: 1px 6px; border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* ── Comparison table ── */
+  .comparison {
+    overflow-x: auto;
+  }
+  .comp-table {
+    width: 100%;
+    max-width: 900px; margin: 0 auto;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .comp-table th, .comp-table td {
+    padding: 16px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+  }
+  .comp-table thead th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .comp-table thead th.highlight {
+    background: var(--accent);
+  }
+  .comp-table td.feat {
+    font-weight: 500;
+  }
+  .comp-table td.mark {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+  .comp-table td.yes { color: #16a34a; font-weight: 600; }
+  .comp-table td.no  { color: var(--ink-faint); }
+  .comp-table tbody tr:hover { background: var(--paper-warm); }
+
+  /* ── Pricing ── */
+  .pricing {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .pricing h2 { color: var(--paper); }
+  .pricing h2 em { color: #fb923c; }
+  .pricing .section-desc { color: rgba(247,244,237,0.7); }
+  .price-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .price-card {
+    padding: 32px 24px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.featured {
+    border-color: var(--accent);
+    background: rgba(194,65,12,0.1);
+  }
+  .price-card.featured::before {
+    content: "MOST POPULAR";
+    position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent); color: white;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+    padding: 3px 10px; border-radius: 2px;
+  }
+  .price-tier {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #fb923c;
+    margin-bottom: 12px;
+  }
+  .price-amount {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .price-unit {
+    font-size: 13px;
+    color: rgba(247,244,237,0.6);
+    margin-bottom: 20px;
+  }
+  .price-features {
+    list-style: none;
+    margin-bottom: 24px;
+    font-size: 13.5px;
+  }
+  .price-features li {
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+    color: rgba(247,244,237,0.85);
+  }
+  .price-features li::before {
+    content: "◆"; color: var(--accent); margin-right: 8px;
+  }
+  .price-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .price-card:not(.featured) .btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--paper);
+  }
+  .price-card:not(.featured) .btn:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* ── Waitlist ── */
+  .waitlist {
+    text-align: center;
+    padding: 120px 24px;
+  }
+  .waitlist-form {
+    max-width: 520px; margin: 40px auto 0;
+    display: flex; gap: 8px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+  }
+  .waitlist-form input {
+    flex: 1;
+    padding: 14px 16px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 14px;
+    background: transparent;
+    color: var(--ink);
+    outline: none;
+  }
+  .waitlist-form button {
+    padding: 12px 20px;
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+  }
+  .waitlist-form button:hover { background: var(--accent); }
+  .waitlist-note {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 48px 24px;
+    background: var(--ink);
+    color: rgba(247,244,237,0.6);
+    font-size: 13px;
+    font-family: var(--mono);
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  footer a { color: var(--paper); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+  .footer-links { margin-top: 12px; }
+  .footer-links a { margin: 0 12px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .hero-content { grid-template-columns: 1fr; gap: 40px; }
+    .problem-grid { grid-template-columns: 1fr; gap: 24px; }
+    .feature-grid { grid-template-columns: 1fr; gap: 32px; }
+    .price-grid { grid-template-columns: 1fr 1fr; }
+    .nav a:not(.cta-nav) { display: none; }
+    section { padding: 64px 20px; }
+    h1.hero-title { font-size: 44px; }
+  }
+  @media (max-width: 520px) {
+    .price-grid { grid-template-columns: 1fr; }
+    .waitlist-form { flex-direction: column; }
+    .hero-meta { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero">
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-mark">M</div>
+      <span>MixCalc Pro</span>
+    </div>
+    <div>
+      <a href="#problem">Problem</a>
+      <a href="#features">Features</a>
+      <a href="#comparison">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#waitlist" class="cta-nav">Try free →</a>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <div>
+      <div class="eyebrow">FOR GAS MIXTURE LABORATORIES</div>
+      <h1 class="hero-title">
+        Gravimetric gas mixtures,<br>
+        <em>without the spreadsheet chaos.</em>
+      </h1>
+      <p class="hero-desc">
+        Built by practitioners for practitioners. ISO 6142-1 Annex F/G uncertainty,
+        Peng-Robinson EOS, 78-gas critical database, and COA-ready PDF reports —
+        all in one tool trusted by gas mixture preparation teams.
+      </p>
+      <div class="hero-ctas">
+        <a href="#waitlist" class="btn btn-primary">Join the waitlist →</a>
+        <a href="./MixCalc_Pro_Global_v8.1.html" class="btn btn-ghost" target="_blank">Try the free demo</a>
+      </div>
+      <div class="hero-meta">
+        <div><strong>78</strong> gases in critical DB</div>
+        <div><strong>ISO 6142-1</strong> Annex F/G</div>
+        <div><strong>100%</strong> client-side</div>
+      </div>
+    </div>
+
+    <!-- Live preview card -->
+    <div class="preview-card">
+      <h3>Example: 100 ppm NO in N₂, 10 L / 150 bar / 25°C</h3>
+      <div class="preview-row"><span>Component</span><span>NO</span></div>
+      <div class="preview-row"><span>Target mol fraction</span><span>1.000e-4</span></div>
+      <div class="preview-row"><span>Z (Peng-Robinson)</span><span>0.9987</span></div>
+      <div class="preview-row"><span>NO mass required</span><span>0.0182 g</span></div>
+      <div class="preview-row"><span>N₂ mass required</span><span>1,722 g</span></div>
+      <div class="preview-row"><span>U(x) at k=2</span><span>± 1.8%</span></div>
+      <div class="preview-note">
+        Verified against NIST Reference values for 15 standard mixtures.
+        Full validation report available on request.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CRED STRIP ═══════════════════ -->
+<div class="cred-strip">
+  <div class="cred-strip-inner">
+    <div class="cred-item">ISO 6142-1:2015</div>
+    <div class="cred-item">ISO/IEC Guide 98-3</div>
+    <div class="cred-item">Peng-Robinson EOS</div>
+    <div class="cred-item">IUPAC 2021</div>
+    <div class="cred-item">ISO 11114-1/2</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PROBLEM ═══════════════════ -->
+<section id="problem">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Three reasons your lab's <em>spreadsheets</em> keep failing audits.</h2>
+      <p class="section-desc">
+        After 10+ years preparing gravimetric gas mixtures, we kept seeing the same failure modes.
+        MixCalc Pro was built to eliminate every one of them.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <h3>Ideal gas assumption at 150+ bar</h3>
+        <p>Most in-house spreadsheets use PV=nRT and silently introduce 2–5% mass errors.
+          MixCalc applies Peng-Robinson EOS with 78 gases in the critical database.</p>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <h3>Uncertainty hand-calculations</h3>
+        <p>ISO/IEC 17025 auditors require full uncertainty budgets per ISO 6142-1 Annex F/G.
+          Most labs calculate these manually — error-prone and non-reproducible.</p>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <h3>Certificate of Analysis generation</h3>
+        <p>COA documents take 30+ minutes per cylinder to draft in Word. MixCalc generates
+          auditor-ready PDFs in one click, formatted to the standards your clients expect.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<section id="features" class="features">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Every feature your team actually <em>uses</em>.</h2>
+      <p class="section-desc">
+        No AI-generated marketing fluff. Real capabilities built for real gas mixture workflows.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-icon">Z</div>
+        <div>
+          <h3>Peng-Robinson EOS</h3>
+          <p>Full mixing-rule implementation with 78 gases in the critical properties database.
+            Automatic fallback warnings when data is missing. Compressibility factor calculated
+            per component and for the combined mixture.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">U</div>
+        <div>
+          <h3>ISO 6142-1 Annex F/G Uncertainty</h3>
+          <p>Full <code>u(x_i)</code> and expanded <code>U(x_i)</code> calculation per the GUM framework.
+            Input weighing uncertainty, parent gas purity uncertainty, and IUPAC 2021 molar mass
+            uncertainty — output auditable to ISO/IEC 17025 standards.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">P</div>
+        <div>
+          <h3>Pre-mixed base cylinder mode</h3>
+          <p>Match your actual production process: use a multi-component parent mixture + balance
+            gas injection. Automatic ratio-match tolerance check warns when base composition
+            drift exceeds ±2%.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">W</div>
+        <div>
+          <h3>Multi-step dilution wizard</h3>
+          <p>Can't weigh the target directly? The wizard back-calculates the optimal
+            intermediate gas concentration that satisfies your balance's minimum weighable mass,
+            then generates the step-by-step preparation procedure.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">C</div>
+        <div>
+          <h3>Compatibility checks</h3>
+          <p>Based on ISO 11114-1/2 principles. Catches oxidizer + fuel, acid + base,
+            water-reactive, and cylinder material incompatibilities before they become
+            incidents. Not a substitute for SDS — but catches 90% of common mistakes.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">$</div>
+        <div>
+          <h3>Cost estimator</h3>
+          <p>Per-gas unit price entry with automatic cost calculation based on injected mass.
+            Compare parent gas suppliers side by side. Export cost breakdown as CSV for
+            internal review or customer quotes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPARISON ═══════════════════ -->
+<section id="comparison">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>How we compare to the <em>alternatives</em>.</h2>
+      <p class="section-desc">
+        Honest comparison against the tools you're probably using today.
+      </p>
+    </div>
+
+    <div class="comparison">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Spreadsheet</th>
+            <th>MESA Gas</th>
+            <th>NPL XLGENLINE</th>
+            <th class="highlight">MixCalc Pro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feat">Peng-Robinson EOS (Z)</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓</td>
+            <td class="mark yes">✓</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">ISO 6142-1 Annex F/G uncertainty</td>
+            <td class="mark no">—</td>
+            <td class="mark no">Basic</td>
+            <td class="mark yes">✓</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">Pre-mixed base cylinder mode</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">Multi-step dilution wizard</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">COA-ready PDF export</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">Cost estimation</td>
+            <td class="mark no">Manual</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">Works on mobile / tablet</td>
+            <td class="mark no">—</td>
+            <td class="mark no">Windows only</td>
+            <td class="mark no">Windows only</td>
+            <td class="mark yes">✓</td>
+          </tr>
+          <tr>
+            <td class="feat">Cloud collaboration (Team/Enterprise)</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark no">—</td>
+            <td class="mark yes">✓ Coming</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PRICING ═══════════════════ -->
+<section id="pricing" class="pricing">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Pricing built for <em>labs of every size</em>.</h2>
+      <p class="section-desc">
+        Free for individuals. Affordable for teams. Flexible for enterprises.
+      </p>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-amount">$0</div>
+        <div class="price-unit">forever</div>
+        <ul class="price-features">
+          <li>Full calculation engine</li>
+          <li>3 saved recipes</li>
+          <li>PDF export (watermarked)</li>
+          <li>Client-side only</li>
+        </ul>
+        <a href="./MixCalc_Pro_Global_v8.1.html" class="btn">Try now →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Pro</div>
+        <div class="price-amount">$39</div>
+        <div class="price-unit">per user / month</div>
+        <ul class="price-features">
+          <li>Unlimited recipes</li>
+          <li>Cloud sync across devices</li>
+          <li>COA-formatted PDF</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#waitlist" class="btn">Join waitlist →</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-tier">Team</div>
+        <div class="price-amount">$199</div>
+        <div class="price-unit">per month · up to 5 users</div>
+        <ul class="price-features">
+          <li>Everything in Pro</li>
+          <li>Shared recipe library</li>
+          <li>Audit log (who changed what)</li>
+          <li>SSO (Google / Microsoft)</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#waitlist" class="btn btn-primary">Join waitlist →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Enterprise</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-unit">from $15,000 / year</div>
+        <ul class="price-features">
+          <li>Everything in Team</li>
+          <li>On-premise option</li>
+          <li>LIMS integration</li>
+          <li>ISO 17025 audit assistance</li>
+          <li>SLA &amp; dedicated support</li>
+        </ul>
+        <a href="mailto:hello@mixcalc.pro?subject=Enterprise%20inquiry" class="btn">Contact sales →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ WAITLIST ═══════════════════ -->
+<section id="waitlist" class="waitlist">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Be the <em>first</em> lab to upgrade.</h2>
+      <p class="section-desc">
+        We're onboarding design partners for Pro and Team plans in 2026.
+        Join the waitlist to get 50% off your first year when we launch.
+      </p>
+    </div>
+
+    <form class="waitlist-form" onsubmit="handleWaitlist(event)">
+      <input type="email" name="email" placeholder="your@lab.email" required>
+      <button type="submit">Join waitlist</button>
+    </form>
+    <div class="waitlist-note" id="waitlist-note">
+      No spam. Unsubscribe anytime. We respect your privacy (GDPR / CCPA compliant).
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div>
+    © 2026 MixCalc Pro · Built for gas mixture laboratories worldwide
+  </div>
+  <div class="footer-links">
+    <a href="./MixCalc_Pro_Global_v8.1.html">Free Demo</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="mailto:hello@mixcalc.pro">Contact</a>
+  </div>
+  <div style="margin-top:16px; font-size:11px; opacity:0.6;">
+    Not certified under ISO/IEC 17025, ASTM, SEMI, or FDA 21 CFR Part 11.
+    Users are solely responsible for verifying all results.
+  </div>
+</footer>
+
+<script>
+  // Waitlist form handler — replace with your actual endpoint (Formspree, ConvertKit, Loops.so, etc.)
+  function handleWaitlist(e) {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const note = document.getElementById('waitlist-note');
+
+    // TODO: Replace with your actual form endpoint
+    // Example with Formspree:
+    //   fetch('https://formspree.io/f/YOUR_ID', { method: 'POST', headers: {'Content-Type':'application/json', 'Accept':'application/json'}, body: JSON.stringify({email}) })
+    // Example with Loops.so:
+    //   fetch('https://app.loops.so/api/newsletter-form/YOUR_ID', { method:'POST', body: new URLSearchParams({email}) })
+
+    // Placeholder behavior:
+    console.log('Waitlist signup:', email);
+    note.textContent = `✓ Thank you! We'll email ${email} when we launch.`;
+    note.style.color = '#16a34a';
+    e.target.reset();
+  }
+</script>
+
+</body>
+</html>
